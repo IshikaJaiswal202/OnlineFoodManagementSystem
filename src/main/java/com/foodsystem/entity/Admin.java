@@ -19,8 +19,7 @@ public class Admin {
     public Admin() {
     }
 
-    public Admin(Integer adminId, String customerName, String password, String email, String phoneNumber, String address) {
-        this.adminId = adminId;
+    public Admin(String customerName, String password, String email, String phoneNumber, String address) {
         this.customerName = customerName;
         this.password = password;
         this.email = email;
