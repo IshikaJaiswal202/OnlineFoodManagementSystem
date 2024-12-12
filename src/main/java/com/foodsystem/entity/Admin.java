@@ -19,7 +19,12 @@ public class Admin {
     public Admin() {
     }
 
+<<<<<<< HEAD
     public Admin(String customerName, String password, String email, String phoneNumber, String address) {
+=======
+    public Admin(Integer adminId, String customerName, String password, String email, String phoneNumber, String address) {
+        this.adminId = adminId;
+>>>>>>> fb0eab6bedf3d962ac81e907483ad440b8910d90
         this.customerName = customerName;
         this.password = password;
         this.email = email;
