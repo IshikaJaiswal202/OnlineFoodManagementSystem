@@ -1,6 +1,6 @@
 package com.foodsystem.controller;
 
-import com.foodsystem.entity.ApiResponse;
+import com.foodsystem.builder.ApiResponse;
 import com.foodsystem.entity.Items;
 import com.foodsystem.service.IItemsService;
 import org.springframework.beans.factory.annotation.Autowired;

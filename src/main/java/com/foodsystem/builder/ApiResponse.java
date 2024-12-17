@@ -1,4 +1,4 @@
-package com.foodsystem.entity;
+package com.foodsystem.builder;
 
 import org.springframework.http.HttpStatus;
 
@@ -9,10 +9,13 @@ public class ApiResponse {
     private Boolean success;
 
     // Constructor
-    private ApiResponse(Builder builder) {
+    public ApiResponse(Builder builder) {
         this.msg = builder.msg;
         this.code = builder.code;
         this.success = builder.success;
+    }
+
+    public ApiResponse(String foodCartAddedSuccessfully, HttpStatus httpStatus, boolean b) {
     }
 
     // Getters and Setters

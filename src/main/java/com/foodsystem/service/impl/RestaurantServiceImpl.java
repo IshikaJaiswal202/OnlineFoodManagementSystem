@@ -1,6 +1,6 @@
 package com.foodsystem.service.impl;
 
-import com.foodsystem.entity.ApiResponse;
+import com.foodsystem.builder.ApiResponse;
 import com.foodsystem.entity.Items;
 import com.foodsystem.entity.Restaurant;
 import com.foodsystem.exceptions.ResourceNotFoundExceptions;

@@ -1,12 +1,16 @@
 package com.foodsystem.service.impl;
 
-import com.foodsystem.entity.ApiResponse;
+import com.foodsystem.builder.ApiResponse;
 import com.foodsystem.entity.Customer;
 import com.foodsystem.exceptions.ResourceNotFoundExceptions;
 import com.foodsystem.repo.ICustomerRepo;
 import com.foodsystem.service.ICustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,20 +19,32 @@ import java.util.Optional;
 public class CustomerServiceImpl implements ICustomerService {
 
     @Autowired
+    JwtService jwtService;
+    @Autowired
     ICustomerRepo repo;
+
+    @Autowired
+    AuthenticationManager authenticationManager;
+
+    BCryptPasswordEncoder encoder=new BCryptPasswordEncoder(12);
+
     @Override
     public ApiResponse addCustomer(Customer customer) {
         Optional<Customer> customers = repo.findByEmail(customer.getEmail());
         if(customers.isEmpty())
-         repo.save(customer);
+        {
+            customer.setPassword(encoder.encode(customer.getPassword()));
+            System.out.println(customer);
+            repo.save(customer);
+        }
          else
           throw new ResourceNotFoundExceptions(" customer email should be Unique");
 
-         return  new ApiResponse.Builder().
-                msg("Successfully customer Added").
-                code(HttpStatus.OK).
-                success(true).
-                build();
+         return    new ApiResponse.Builder().
+                 msg("Successfully added customer ").
+                 code(HttpStatus.CREATED).
+                 success(true).
+                 build();
     }
 
     @Override
@@ -52,5 +68,15 @@ public class CustomerServiceImpl implements ICustomerService {
                 code(HttpStatus.OK).
                 success(true).
                 build();
+    }
+
+    @Override
+    public String verifyForLogin(Customer customer) {
+        Authentication authentication= authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(customer.getEmail(),customer.getPassword()));
+        if (authentication.isAuthenticated()) {
+            System.out.println(customer.getEmail());
+            return jwtService.generateToken(customer.getEmail());
+        }
+           throw new ResourceNotFoundExceptions("Failed To LogIn");
     }
 }

@@ -1,12 +1,16 @@
 package com.foodsystem.controller;
 
+import com.foodsystem.builder.ApiResponse;
 import com.foodsystem.entity.*;
+import com.foodsystem.service.IAdminService;
 import com.foodsystem.service.ICustomerService;
 import com.foodsystem.service.IFoodCartService;
 import com.foodsystem.service.IRestaurantService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,16 +20,33 @@ import java.util.List;
 public class AdminController {
 
 
+
     @Autowired
     ICustomerService customerService;
 
 
     @Autowired
     IFoodCartService cartService;
-    // add the customer
 
     @Autowired
     IRestaurantService restaurantService;
+
+
+
+    @Autowired
+    IAdminService adminService;
+
+
+   @PostMapping("/loginAdmin")
+   public ResponseEntity<String> loginAdmin(@RequestBody Admin admin)
+   {
+       String response = adminService.verifyForLogin(admin);
+       return new ResponseEntity<>(response,HttpStatus.OK);
+
+   }
+
+
+
     //customer Operations
     @PostMapping("/addCustomer")
     public ResponseEntity<ApiResponse> addCustomer(@RequestBody Customer customer)
@@ -116,4 +137,6 @@ public class AdminController {
         return new ResponseEntity<ApiResponse>(response,HttpStatus.CREATED);
 
     }
+
+
 }

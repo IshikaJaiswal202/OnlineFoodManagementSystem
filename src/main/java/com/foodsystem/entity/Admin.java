@@ -9,8 +9,8 @@ public class Admin {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Integer adminId;
-    private String   customerName;
-    private String password;
+    private String   adminName;
+    private String  password;
     @Column(unique = true)
     private String   email;
     private String   phoneNumber;
@@ -19,13 +19,9 @@ public class Admin {
     public Admin() {
     }
 
-<<<<<<< HEAD
-    public Admin(String customerName, String password, String email, String phoneNumber, String address) {
-=======
-    public Admin(Integer adminId, String customerName, String password, String email, String phoneNumber, String address) {
+    public Admin(Integer adminId, String adminName, String password, String email, String phoneNumber, String address) {
         this.adminId = adminId;
->>>>>>> fb0eab6bedf3d962ac81e907483ad440b8910d90
-        this.customerName = customerName;
+        this.adminName = adminName;
         this.password = password;
         this.email = email;
         this.phoneNumber = phoneNumber;
@@ -40,12 +36,12 @@ public class Admin {
         this.adminId = adminId;
     }
 
-    public String getCustomerName() {
-        return customerName;
+    public String getAdminName() {
+        return adminName;
     }
 
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
+    public void setAdminName(String adminName) {
+        this.adminName = adminName;
     }
 
     public String getPassword() {
@@ -84,7 +80,7 @@ public class Admin {
     public String toString() {
         return "Admin{" +
                 "adminId=" + adminId +
-                ", customerName='" + customerName + '\'' +
+                ", customerName='" + adminName + '\'' +
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +

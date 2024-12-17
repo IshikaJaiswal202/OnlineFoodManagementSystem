@@ -1,5 +1,6 @@
 package com.foodsystem.controller;
 
+import com.foodsystem.builder.ApiResponse;
 import com.foodsystem.entity.*;
 import com.foodsystem.service.ICustomerService;
 import com.foodsystem.service.IFoodCartService;
@@ -24,6 +25,9 @@ public class CustomerController {
     @Autowired
     IOrderService orderService;
 
+    @Autowired
+    ICustomerService customerService;
+
     //add foodCart
 //    @GetMapping("/getRestaurantById/{id}")
 //    public ResponseEntity<Restaurant> getRestaurantById(@PathVariable Integer id)
@@ -31,6 +35,15 @@ public class CustomerController {
 //        Restaurant restaurant=restaurantService.getRestaurantById(id);
 //        return new ResponseEntity<Restaurant>(restaurant,HttpStatus.OK);
 //    }
+
+    //login
+    @PostMapping("/loginCustomer")
+    public String loginCustomer(@RequestBody Customer customer)
+    {
+        String response = customerService.verifyForLogin(customer);
+        return response;
+
+    }
 
     @GetMapping("/getRestaurantByName/{restaurantName}")
     public ResponseEntity<Restaurant> getRestaurantByName(@PathVariable String restaurantName) {
@@ -41,6 +54,7 @@ public class CustomerController {
     //getAllRestaurant
     @GetMapping("/getAllRestaurant")
     public ResponseEntity<List<Restaurant>> getAllRestaurant() {
+        System.out.println("Inside controller");
         List<Restaurant> list = restaurantService.getAllRestaurant();
         return new ResponseEntity<List<Restaurant>>(list, HttpStatus.OK);
     }
@@ -58,12 +72,13 @@ public class CustomerController {
     }
 
     @PostMapping("palaceOrder/{customerId}")
-    public ResponseEntity<ApiResponse> palaceOrder(@PathVariable Integer customerId,  @RequestBody Orders orders)
+    public ResponseEntity<ApiResponse> palaceOrder(@PathVariable Integer customerId, @RequestBody Orders orders)
     {
           ApiResponse response=orderService.palaceOrder(customerId,orders);
          return new ResponseEntity<>(response, HttpStatus.CREATED);
 
     }
+
 
 }
 

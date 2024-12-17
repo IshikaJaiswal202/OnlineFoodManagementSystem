@@ -1,6 +1,6 @@
 package com.foodsystem.exceptionHandler;
 
-import com.foodsystem.entity.ApiResponse;
+import com.foodsystem.builder.ApiResponse;
 import com.foodsystem.exceptions.ResourceNotFoundExceptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;

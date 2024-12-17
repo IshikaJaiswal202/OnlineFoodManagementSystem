@@ -1,6 +1,6 @@
 package com.foodsystem.service;
 
-import com.foodsystem.entity.ApiResponse;
+import com.foodsystem.builder.ApiResponse;
 import com.foodsystem.entity.Items;
 
 import java.util.List;

@@ -1,17 +1,16 @@
 package com.foodsystem.service.impl;
 
+import com.foodsystem.builder.ApiResponse;
 import com.foodsystem.entity.*;
 import com.foodsystem.exceptions.ResourceNotFoundExceptions;
 import com.foodsystem.repo.ICustomerRepo;
 import com.foodsystem.repo.IFoodCartRepo;
 import com.foodsystem.repo.IItemsRepo;
-import com.foodsystem.repo.IRestaurantRepo;
 import com.foodsystem.service.IFoodCartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +26,7 @@ public class FoodCartServiceImpl implements IFoodCartService {
     @Autowired
     IFoodCartRepo foodRepo;
     @Override
-    public  ApiResponse saveFoodCart(Integer customerId) {
+    public ApiResponse saveFoodCart(Integer customerId) {
         return null;
     }
 

@@ -1,6 +1,6 @@
 package com.foodsystem.service;
 
-import com.foodsystem.entity.ApiResponse;
+import com.foodsystem.builder.ApiResponse;
 import com.foodsystem.entity.Customer;
 
 public interface ICustomerService {
@@ -10,4 +10,5 @@ public interface ICustomerService {
 
      ApiResponse permanentDeleteCustomer(String email);
 
+     String verifyForLogin(Customer customer);
 }
