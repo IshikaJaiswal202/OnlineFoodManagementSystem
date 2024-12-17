@@ -5,6 +5,7 @@ import com.foodsystem.builder.ApiResponse;
 import com.foodsystem.entity.Customer;
 import com.foodsystem.exceptions.ResourceNotFoundExceptions;
 import com.foodsystem.service.ICustomerService;
+import com.foodsystem.service.impl.CustomerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -26,7 +27,7 @@ public class AdminTestController {
     private MockMvc mockMvc;
 
     @Mock
-    private ICustomerService customerService;
+    private CustomerServiceImpl customerService;
 
     private Customer customer;
 

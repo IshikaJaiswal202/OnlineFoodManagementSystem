@@ -2,9 +2,13 @@ package com.foodsystem.service;
 
 import com.foodsystem.builder.ApiResponse;
 import com.foodsystem.entity.Customer;
+import com.foodsystem.entity.Items;
+import com.foodsystem.entity.Restaurant;
 import com.foodsystem.exceptions.ResourceNotFoundExceptions;
 import com.foodsystem.repo.ICustomerRepo;
+import com.foodsystem.repo.IRestaurantRepo;
 import com.foodsystem.service.impl.CustomerServiceImpl;
+import com.foodsystem.service.impl.RestaurantServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,21 +17,31 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-@ExtendWith(MockitoExtension.class)  // Ensures Mockito annotations are processed
+@ExtendWith(MockitoExtension.class)
 public class CustomerServiceImplTest
 {
     @Mock
-    private ICustomerRepo repo; // Mocking the repository
+    private ICustomerRepo repo;
 
     @InjectMocks
-    private CustomerServiceImpl customerService; // Injecting mocks into the service
+    private CustomerServiceImpl customerService;
+
+    @Mock
+    private IRestaurantRepo restaurantRepo;
+
+    @InjectMocks
+    private RestaurantServiceImpl restaurantService;
 
     private Customer customer;
+
+    private Restaurant restaurant;
+
 
     @BeforeEach
     public void setUp() {
@@ -35,40 +49,85 @@ public class CustomerServiceImplTest
         customer.setEmail("customer@example.com");
         customer.setCustomerName("John Doe");
         customer.setPassword("password123");
-        customer.setStatus(true); // Initial status as active (true)
+        customer.setStatus(true);
+
+        restaurant=new Restaurant();
+        restaurant.setRestaurantName("The Good Eatery");
+        restaurant.setDescription("xyz");
+        restaurant.setStatus(true);
+        ArrayList<Items> items=new ArrayList<>();
+        Items item=new Items();
+        item.setItemName("Pizza");
+        item.setItemCost(45.00);
+        items.add(item);
     }
 
-    // Test Case 1: Customer is found and successfully soft-deleted
     @Test
     public void testSoftDeleteCustomer_Success() {
-        // Arrange: Mock the repository to return a customer when searching by email
         when(repo.findByEmail(anyString())).thenReturn(Optional.of(customer));
 
-        // Act: Call the service method
         ApiResponse response = customerService.softDeleteCustomer("customer@example.com");
 
-        // Assert: Verify the response message, code, and status
         assertEquals("Successfully customer removed", response.getMsg());
         assertEquals(HttpStatus.OK, response.getCode());
         assertTrue(response.getSuccess());
 
-        // Verify the repository's save method is called once
         verify(repo, times(1)).save(customer);
 
-        // Verify that the customer's status was updated to false
         assertFalse(customer.getStatus());
     }
 
-    // Test Case 2: Customer is not found and ResourceNotFoundExceptions is thrown
     @Test
     public void testSoftDeleteCustomer_CustomerNotFound() {
-        // Arrange: Mock the repository to return an empty Optional (customer not found)
         when(repo.findByEmail(anyString())).thenReturn(Optional.empty());
 
-        // Act & Assert: Check if the exception is thrown
         assertThrows(ResourceNotFoundExceptions.class, () -> {
             customerService.softDeleteCustomer("nonexistent@example.com");
         });
     }
 
-}
+
+    @Test
+    public void testPermanentDeleteCustomer_Success() {
+        String email = "test@example.com";
+        Customer mockCustomer = new Customer();
+        mockCustomer.setEmail(email);
+
+
+        when(repo.findByEmail(email)).thenReturn(Optional.of(mockCustomer));
+
+        ApiResponse response = customerService.permanentDeleteCustomer(email);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getCode());
+        assertTrue(response.getSuccess());
+
+        verify(repo, times(1)).deleteByEmail(email);
+    }
+    @Test
+    public void testPermanentDeleteCustomer_CustomerNotFound() {
+        when(repo.findByEmail(anyString())).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundExceptions.class,()-> customerService.permanentDeleteCustomer("test@example.com"));
+        verify(repo,never()).deleteByEmail(anyString());
+    }
+
+    @Test
+    public void testAddRestaurant_Success() {
+        when(restaurantRepo.findByRestaurantName(anyString())).thenReturn(Optional.empty());
+        ApiResponse response=restaurantService.addRestaurant(restaurant);
+
+        assertEquals(HttpStatus.OK,response.getCode());
+        assertTrue(response.getSuccess());
+        verify(restaurantRepo,times(1)).save(restaurant);
+    }
+
+    @Test
+    public void testAddRestaurant_NameAlreadyExists() {
+
+        when(restaurantRepo.findByRestaurantName(anyString())).thenReturn(Optional.of(restaurant));
+        assertThrows(ResourceNotFoundExceptions.class,()-> restaurantService.addRestaurant(restaurant));
+        verify(restaurantRepo,never()).save(restaurant);
+    }
+
+
+    }
