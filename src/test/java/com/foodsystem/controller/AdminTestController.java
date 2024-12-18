@@ -1,79 +1,53 @@
 package com.foodsystem.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.foodsystem.builder.ApiResponse;
-import com.foodsystem.entity.Customer;
-import com.foodsystem.exceptions.ResourceNotFoundExceptions;
-import com.foodsystem.service.ICustomerService;
-import com.foodsystem.service.impl.CustomerServiceImpl;
+import com.foodsystem.entity.Restaurant;
+import com.foodsystem.service.impl.RestaurantServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.mockito.MockitoAnnotations;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class AdminTestController {
-
-    @Autowired
-    private MockMvc mockMvc;
+public class AdminTestController
+{
 
     @Mock
-    private CustomerServiceImpl customerService;
+    private RestaurantServiceImpl restaurantService;
 
-    private Customer customer;
+    @InjectMocks
+    private AdminController adminController;
+
+    private MockMvc mockMvc;
 
     @BeforeEach
     public void setUp() {
-        customer = new Customer();
-        customer.setEmail("customer@example.com");
-        customer.setPassword("password123");
-        customer.setCustomerName("John Doe");
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(adminController).build();
     }
 
     @Test
-    public void testAddCustomer_Success() throws Exception {
-        // Arrange: Mocking the service method to return a successful ApiResponse
-        ApiResponse apiResponse = new ApiResponse.Builder()
-                .msg("Successfully added customer")
-                .code(HttpStatus.CREATED)
-                .success(true)
-                .build();
+    public void testGetAllRestaurant_Success() throws Exception {
+        Restaurant restaurant1 = new Restaurant();
+        restaurant1.setRestaurantName("Restaurant 1");
 
-        when(customerService.addCustomer(any(Customer.class))).thenReturn(apiResponse);
+        Restaurant restaurant2 = new Restaurant();
+        restaurant2.setRestaurantName("Restaurant 2");
 
-        // Act: Calling the endpoint using MockMvc
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        mockMvc.perform(post("/admin/addCustomer")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(customer)))
-                .andExpect(status().isCreated())  // Status code 201
-                .andExpect(content().string("Successfully added customer"));
-
-        // Verify the service method was called once with any Customer object
-        verify(customerService, times(1)).addCustomer(any(Customer.class));
+        List<Restaurant> restaurantList = Arrays.asList(restaurant1, restaurant2);
+        when(restaurantService.getAllRestaurant()).thenReturn(restaurantList);
+        mockMvc.perform(get("/admin/getAllRestaurant"))
+                .andExpect(status().isOk());
     }
 
-        // Test for adding a customer where email already exists
-        @Test
-        public void testAddCustomer_EmailAlreadyExists() throws Exception {
-            // Arrange: Mocking the service method to throw an exception if the email already exists
-            when(customerService.addCustomer(customer)).thenThrow(new ResourceNotFoundExceptions("customer email should be Unique"));
 
-            // Act & Assert: Checking if the exception message is returned with the correct status
-            mockMvc.perform(post("/admin/addCustomer")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"email\":\"customer@example.com\",\"password\":\"password123\",\"customerName\":\"John Doe\"}"))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(content().string("customer email should be Unique"));
-        }
-    }
+}

@@ -21,7 +21,6 @@ public class AdminServiceImpl implements IAdminService {
     AuthenticationManager authenticationManager;
     @Autowired
     JwtService jwtService;
-    // BCryptPasswordEncoder encoder=new BCryptPasswordEncoder(12);
 
     @Autowired
     IAdminRepo adminRepo;

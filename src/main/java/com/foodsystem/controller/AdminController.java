@@ -44,9 +44,6 @@ public class AdminController {
        return new ResponseEntity<>(response,HttpStatus.OK);
 
    }
-
-
-
     //customer Operations
     @PostMapping("/addCustomer")
     public ResponseEntity<ApiResponse> addCustomer(@RequestBody Customer customer)

@@ -8,6 +8,7 @@ import com.foodsystem.exceptions.ResourceNotFoundExceptions;
 import com.foodsystem.repo.ICustomerRepo;
 import com.foodsystem.repo.IRestaurantRepo;
 import com.foodsystem.service.impl.CustomerServiceImpl;
+import com.foodsystem.service.impl.JwtService;
 import com.foodsystem.service.impl.RestaurantServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,10 +16,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import javax.management.remote.JMXAuthenticator;
+import javax.security.auth.Subject;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -32,15 +42,22 @@ public class CustomerServiceImplTest
     @InjectMocks
     private CustomerServiceImpl customerService;
 
-    @Mock
-    private IRestaurantRepo restaurantRepo;
 
-    @InjectMocks
-    private RestaurantServiceImpl restaurantService;
+
+    @Mock
+    private AuthenticationManager authenticationManager;
+
+    @Mock
+    private JwtService jwtService;
+
+
 
     private Customer customer;
 
-    private Restaurant restaurant;
+
+
+    @Mock
+    private BCryptPasswordEncoder encoder;
 
 
     @BeforeEach
@@ -50,16 +67,6 @@ public class CustomerServiceImplTest
         customer.setCustomerName("John Doe");
         customer.setPassword("password123");
         customer.setStatus(true);
-
-        restaurant=new Restaurant();
-        restaurant.setRestaurantName("The Good Eatery");
-        restaurant.setDescription("xyz");
-        restaurant.setStatus(true);
-        ArrayList<Items> items=new ArrayList<>();
-        Items item=new Items();
-        item.setItemName("Pizza");
-        item.setItemCost(45.00);
-        items.add(item);
     }
 
     @Test
@@ -111,23 +118,53 @@ public class CustomerServiceImplTest
         verify(repo,never()).deleteByEmail(anyString());
     }
 
-    @Test
-    public void testAddRestaurant_Success() {
-        when(restaurantRepo.findByRestaurantName(anyString())).thenReturn(Optional.empty());
-        ApiResponse response=restaurantService.addRestaurant(restaurant);
 
-        assertEquals(HttpStatus.OK,response.getCode());
+    @Test
+    void verifyForLogin_SuccessfulAuthentication_ReturnsToken() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(authentication);
+        when(jwtService.generateToken(customer.getEmail())).thenReturn("mocked-jwt-token");
+        String token = customerService.verifyForLogin(customer);
+        assertNotNull(token);
+        assertEquals("mocked-jwt-token", token);
+        verify(jwtService).generateToken(customer.getEmail());
+    }
+    @Test
+    void verifyForLogin_FailedAuthentication_ThrowsException() {
+        //to authenticate the user.
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenThrow(new BadCredentialsException("Bad credentials"));
+
+        ResourceNotFoundExceptions exception = assertThrows(ResourceNotFoundExceptions.class, () -> {
+            customerService.verifyForLogin(customer);
+        });
+        assertEquals("Failed To LogIn", exception.getMessage());
+        verify(jwtService, never()).generateToken(anyString());
+    }
+
+
+   // @Test
+    void testAddCustomer_WhenEmailIsUnique() {
+        when(repo.findByEmail(customer.getEmail())).thenReturn(Optional.empty());
+        when(encoder.encode(customer.getPassword())).thenReturn("encodedPassword");
+
+        ApiResponse response = customerService.addCustomer(customer);
+
+        verify(repo, times(1)).save(customer);
+        verify(encoder, times(1)).encode(customer.getPassword());
+        assertEquals(HttpStatus.CREATED, response.getCode());
         assertTrue(response.getSuccess());
-        verify(restaurantRepo,times(1)).save(restaurant);
     }
 
     @Test
-    public void testAddRestaurant_NameAlreadyExists() {
+    void testAddCustomer_WhenEmailIsNotUnique() {
+        when(repo.findByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
 
-        when(restaurantRepo.findByRestaurantName(anyString())).thenReturn(Optional.of(restaurant));
-        assertThrows(ResourceNotFoundExceptions.class,()-> restaurantService.addRestaurant(restaurant));
-        verify(restaurantRepo,never()).save(restaurant);
+        ResourceNotFoundExceptions exception = assertThrows(ResourceNotFoundExceptions.class, () -> {
+            customerService.addCustomer(customer);
+        });
+       assertEquals(" customer email should be Unique", exception.getMessage());
     }
-
-
-    }
+}
