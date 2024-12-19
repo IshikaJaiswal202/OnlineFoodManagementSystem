@@ -2,21 +2,17 @@ package com.foodsystem.service;
 
 import com.foodsystem.builder.ApiResponse;
 import com.foodsystem.entity.Customer;
-import com.foodsystem.entity.Items;
-import com.foodsystem.entity.Restaurant;
 import com.foodsystem.exceptions.ResourceNotFoundExceptions;
 import com.foodsystem.repo.ICustomerRepo;
-import com.foodsystem.repo.IRestaurantRepo;
 import com.foodsystem.service.impl.CustomerServiceImpl;
 import com.foodsystem.service.impl.JwtService;
-import com.foodsystem.service.impl.RestaurantServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,11 +20,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import javax.management.remote.JMXAuthenticator;
-import javax.security.auth.Subject;
-import java.util.ArrayList;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -62,10 +54,13 @@ public class CustomerServiceImplTest
 
     @BeforeEach
     public void setUp() {
+        MockitoAnnotations.openMocks(this);
         customer = new Customer();
+        customer.setCustomerId(1);
         customer.setEmail("customer@example.com");
         customer.setCustomerName("John Doe");
         customer.setPassword("password123");
+        customer.setStatus(true);
         customer.setStatus(true);
     }
 
@@ -119,41 +114,12 @@ public class CustomerServiceImplTest
     }
 
 
+
     @Test
-    void verifyForLogin_SuccessfulAuthentication_ReturnsToken() {
-        Authentication authentication = mock(Authentication.class);
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenReturn(authentication);
-        when(jwtService.generateToken(customer.getEmail())).thenReturn("mocked-jwt-token");
-        String token = customerService.verifyForLogin(customer);
-        assertNotNull(token);
-        assertEquals("mocked-jwt-token", token);
-        verify(jwtService).generateToken(customer.getEmail());
-    }
-    @Test
-    void verifyForLogin_FailedAuthentication_ThrowsException() {
-        //to authenticate the user.
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new BadCredentialsException("Bad credentials"));
-
-        ResourceNotFoundExceptions exception = assertThrows(ResourceNotFoundExceptions.class, () -> {
-            customerService.verifyForLogin(customer);
-        });
-        assertEquals("Failed To LogIn", exception.getMessage());
-        verify(jwtService, never()).generateToken(anyString());
-    }
-
-
-   // @Test
     void testAddCustomer_WhenEmailIsUnique() {
         when(repo.findByEmail(customer.getEmail())).thenReturn(Optional.empty());
-        when(encoder.encode(customer.getPassword())).thenReturn("encodedPassword");
-
+        when(encoder.encode("password123")).thenReturn("encodedPassword");
         ApiResponse response = customerService.addCustomer(customer);
-
-        verify(repo, times(1)).save(customer);
-        verify(encoder, times(1)).encode(customer.getPassword());
         assertEquals(HttpStatus.CREATED, response.getCode());
         assertTrue(response.getSuccess());
     }

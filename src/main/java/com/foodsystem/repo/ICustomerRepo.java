@@ -10,4 +10,6 @@ public interface ICustomerRepo extends JpaRepository<Customer,Integer> {
 
       public Customer findByCustomerName(String name);
       public  void deleteByEmail(String email);
+
+    Optional<Object> findByPassword(String password);
 }

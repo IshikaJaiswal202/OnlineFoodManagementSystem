@@ -8,9 +8,6 @@ import com.foodsystem.service.ICustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,8 +31,6 @@ public class CustomerServiceImpl implements ICustomerService {
     public ApiResponse addCustomer(Customer customer) {
         Optional<Customer> customers = repo.findByEmail(customer.getEmail());
         if (customers.isEmpty()) {
-            customer.setPassword(encoder.encode(customer.getPassword()));
-            System.out.println(customer);
             repo.save(customer);
         } else
             throw new ResourceNotFoundExceptions(" customer email should be Unique");
@@ -71,20 +66,14 @@ public class CustomerServiceImpl implements ICustomerService {
     }
 
     @Override
-    public String verifyForLogin(Customer customer) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(customer.getEmail(), customer.getPassword()));
-            if (authentication.isAuthenticated()) {
-                System.out.println(customer.getEmail());
-                return jwtService.generateToken(customer.getEmail());
-            }
-        }
-        catch (BadCredentialsException e)
-        {
-            throw new ResourceNotFoundExceptions("Failed To LogIn");
-        }
-
-        throw new ResourceNotFoundExceptions("Failed To LogIn");
+    public ApiResponse verifyForLogin(Customer customer) {
+        repo.findByEmail(customer.getEmail()).orElseThrow(()-> new ResourceNotFoundExceptions("Email is incorrect"));
+        repo.findByPassword(customer.getPassword()).orElseThrow(()-> new ResourceNotFoundExceptions("password is invalid"));
+        return new ApiResponse.Builder().
+                msg("Successfully Log-in").
+                code(HttpStatus.OK).
+                success(true).
+                build();
     }
 
 

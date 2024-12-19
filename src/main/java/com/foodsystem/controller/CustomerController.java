@@ -1,7 +1,10 @@
 package com.foodsystem.controller;
 
 import com.foodsystem.builder.ApiResponse;
-import com.foodsystem.entity.*;
+import com.foodsystem.entity.Customer;
+import com.foodsystem.entity.Items;
+import com.foodsystem.entity.Orders;
+import com.foodsystem.entity.Restaurant;
 import com.foodsystem.service.ICustomerService;
 import com.foodsystem.service.IFoodCartService;
 import com.foodsystem.service.IOrderService;
@@ -28,20 +31,12 @@ public class CustomerController {
     @Autowired
     ICustomerService customerService;
 
-    //add foodCart
-//    @GetMapping("/getRestaurantById/{id}")
-//    public ResponseEntity<Restaurant> getRestaurantById(@PathVariable Integer id)
-//    {
-//        Restaurant restaurant=restaurantService.getRestaurantById(id);
-//        return new ResponseEntity<Restaurant>(restaurant,HttpStatus.OK);
-//    }
-
     //login
     @PostMapping("/loginCustomer")
-    public String loginCustomer(@RequestBody Customer customer)
+    public ResponseEntity<ApiResponse> loginCustomer(@RequestBody Customer customer)
     {
-        String response = customerService.verifyForLogin(customer);
-        return response;
+        ApiResponse response = customerService.verifyForLogin(customer);
+        return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 
