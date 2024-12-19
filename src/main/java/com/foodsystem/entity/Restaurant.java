@@ -15,7 +15,7 @@ public class Restaurant {
     private String description;
     private Boolean Status;
 
-    @OneToMany(mappedBy = "restaurant",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Items> items;
 
     public Restaurant() {

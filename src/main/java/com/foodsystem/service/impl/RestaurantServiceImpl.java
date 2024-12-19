@@ -55,9 +55,9 @@ public class RestaurantServiceImpl implements IRestaurantService {
         Restaurant rest = repo.findByRestaurantName(restaurantName)
                 .orElseThrow(() -> new ResourceNotFoundExceptions("No Restaurant found By this Name"));
         if (restaurant.getRestaurantName() != null) {
-            repo.findByRestaurantName(restaurantName)
-                    .orElseThrow(() -> new ResourceNotFoundExceptions("No Restaurant found By this Name"));
-            rest.setRestaurantName(restaurant.getRestaurantName());
+//            repo.findByRestaurantName(restaurant.getRestaurantName())
+//                    .orElseThrow(() -> new ResourceNotFoundExceptions("Restaurant Name Should be unique"));
+           rest.setRestaurantName(restaurant.getRestaurantName());
         }
         return new ApiResponse.Builder().
                 msg("Successfully Restaurant Detail Updated").

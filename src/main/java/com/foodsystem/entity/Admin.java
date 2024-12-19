@@ -8,13 +8,13 @@ import jakarta.persistence.*;
 public class Admin {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  Integer adminId;
-    private String   adminName;
-    private String  password;
+    private Integer adminId;
+    private String adminName;
+    private String password;
     @Column(unique = true)
-    private String   email;
-    private String   phoneNumber;
-    private String   address;
+    private String email;
+    private String phoneNumber;
+    private String address;
 
     public Admin() {
     }

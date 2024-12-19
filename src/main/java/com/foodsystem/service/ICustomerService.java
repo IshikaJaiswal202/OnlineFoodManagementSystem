@@ -10,5 +10,5 @@ public interface ICustomerService {
 
      ApiResponse permanentDeleteCustomer(String email);
 
-     String verifyForLogin(Customer customer);
+     ApiResponse verifyForLogin(Customer customer);
 }
