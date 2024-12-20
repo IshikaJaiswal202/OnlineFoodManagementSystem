@@ -18,7 +18,7 @@ public class FoodCart {
      @JsonIgnore
      @ManyToMany
      @JoinTable(name = "FoodCartWithItems", joinColumns =  @JoinColumn(name="foodCart_Id"), inverseJoinColumns = @JoinColumn(name = "item_Id"))
-    private  List<Items> items;
+     private  List<Items> items;
 
     public Integer getCartId() {
         return cartId;

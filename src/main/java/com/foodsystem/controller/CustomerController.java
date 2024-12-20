@@ -61,8 +61,8 @@ public class CustomerController {
     }
 
     @GetMapping("/getAllItems_FoodCart/{customerId}")
-    public ResponseEntity<List<Items>> getRestaurantByName(@PathVariable Integer customerId) {
-        List<Items> items = cartService.getRestaurantByName(customerId);
+    public ResponseEntity<List<Items>> getAllItems_FoodCart(@PathVariable Integer customerId) {
+        List<Items> items = cartService.getAllItems_FoodCart(customerId);
         return new ResponseEntity<>(items, HttpStatus.OK);
     }
 

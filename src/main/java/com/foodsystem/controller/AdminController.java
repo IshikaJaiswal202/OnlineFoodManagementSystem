@@ -110,13 +110,12 @@ public class AdminController {
         ApiResponse response = restaurantService.deleteRestaurantById(id);
         return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
     }
+
     //add FoodCart
     @PostMapping("/addFoodCart/{customerId}")
-
     public ResponseEntity<ApiResponse> addFoodCart(@PathVariable Integer customerId, @RequestBody FoodCart foodCart) {
         ApiResponse response = cartService.addFoodCart(customerId, foodCart);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
-
     }
 
 

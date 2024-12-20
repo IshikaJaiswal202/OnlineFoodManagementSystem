@@ -15,9 +15,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
@@ -118,7 +115,6 @@ public class CustomerServiceImplTest
     @Test
     void testAddCustomer_WhenEmailIsUnique() {
         when(repo.findByEmail(customer.getEmail())).thenReturn(Optional.empty());
-        when(encoder.encode("password123")).thenReturn("encodedPassword");
         ApiResponse response = customerService.addCustomer(customer);
         assertEquals(HttpStatus.CREATED, response.getCode());
         assertTrue(response.getSuccess());
@@ -132,5 +128,32 @@ public class CustomerServiceImplTest
             customerService.addCustomer(customer);
         });
        assertEquals(" customer email should be Unique", exception.getMessage());
+    }
+
+    @Test
+    void testVerifyForLogin_Success() {
+        when(repo.findByEmail(customer.getEmail())).thenReturn(java.util.Optional.of(customer));
+        when(repo.findByPassword(customer.getPassword())).thenReturn(java.util.Optional.of(customer));
+        ApiResponse response = customerService.verifyForLogin(customer);
+        assertNotNull(response);
+    }
+
+    @Test
+    void testVerifyForLogin_EmailNotFound() {
+        when(repo.findByEmail(customer.getEmail())).thenReturn(java.util.Optional.empty());
+        ResourceNotFoundExceptions exception = assertThrows(ResourceNotFoundExceptions.class, () -> {
+            customerService.verifyForLogin(customer);
+        });
+        assertEquals("Email is incorrect", exception.getMessage());
+         }
+
+    @Test
+    void testVerifyForLogin_PasswordInvalid() {
+        when(repo.findByEmail(customer.getEmail())).thenReturn(java.util.Optional.of(customer));
+        when(repo.findByPassword(customer.getPassword())).thenReturn(java.util.Optional.empty());
+        ResourceNotFoundExceptions exception = assertThrows(ResourceNotFoundExceptions.class, () -> {
+            customerService.verifyForLogin(customer);
+        });
+        assertEquals("password is invalid", exception.getMessage());
     }
 }

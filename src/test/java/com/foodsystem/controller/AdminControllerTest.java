@@ -2,7 +2,6 @@ package com.foodsystem.controller;
 
 import com.foodsystem.builder.ApiResponse;
 import com.foodsystem.entity.*;
-import com.foodsystem.exceptions.ResourceNotFoundExceptions;
 import com.foodsystem.service.impl.AdminServiceImpl;
 import com.foodsystem.service.impl.CustomerServiceImpl;
 import com.foodsystem.service.impl.FoodCartServiceImpl;
@@ -13,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,39 +66,16 @@ public class AdminControllerTest
     @Test
     public void testAddFoodCart_Success() {
         when(cartService.addFoodCart(customer.getCustomerId(), foodCart)).thenReturn(response);
-        ApiResponse responseEntity = cartService.addFoodCart(customer.getCustomerId(), foodCart);
+        ResponseEntity<ApiResponse> responseEntity = adminController.addFoodCart(customer.getCustomerId(), foodCart);
         assertNotNull(responseEntity);
     }
-
-    @Test
-    public void testAddFoodCart_Failure() {
-        try {
-            when(cartService.addFoodCart(customer.getCustomerId(), foodCart))
-                    .thenThrow(new ResourceNotFoundExceptions("Customer not found"));
-
-        } catch (ResourceNotFoundExceptions e) {
-            assertEquals("Customer not found", e.getMessage());
-        }
-    }
-
 
     @Test
     public void testDeleteRestaurantById_Success() {
         response.setMsg("Restaurant deleted successfully");
         when(restaurantService.deleteRestaurantById(restaurant.getRestaurantId())).thenReturn(response);
-        ApiResponse responseEntity = restaurantService.deleteRestaurantById(restaurant.getRestaurantId());
+        ResponseEntity<ApiResponse> responseEntity = adminController.deleteRestaurantById(restaurant.getRestaurantId());
         assertNotNull(responseEntity);
-    }
-
-    @Test
-    public void testDeleteRestaurantById_Failure() {
-        restaurant.setRestaurantId(11);
-        try {
-            when(restaurantService.deleteRestaurantById(restaurant.getRestaurantId())).
-                    thenThrow(new ResourceNotFoundExceptions("Restaurant not found"));
-        } catch (ResourceNotFoundExceptions e) {
-            assertEquals("Restaurant not found", e.getMessage());
-        }
     }
 
     @Test
@@ -106,20 +83,8 @@ public class AdminControllerTest
         Integer restaurantId = 1;
         response.setMsg("Restaurant safely deleted");
         when(restaurantService.safeDeleteRestaurant(restaurantId)).thenReturn(response);
-        ApiResponse responseEntity = restaurantService.safeDeleteRestaurant(restaurantId);
+        ResponseEntity<ApiResponse> responseEntity = adminController.safeDeleteRestaurant(restaurantId);
         assertNotNull(responseEntity);
-    }
-
-    @Test
-    public void testSafeDeleteRestaurant_Failure() {
-        Integer restaurantId = 11;
-        try {
-            when(restaurantService.safeDeleteRestaurant(restaurantId))
-                    .thenThrow(new ResourceNotFoundExceptions("Restaurant not found"));
-
-        } catch (ResourceNotFoundExceptions e) {
-            assertEquals("Restaurant not found", e.getMessage());
-        }
     }
 
     @Test
@@ -129,17 +94,8 @@ public class AdminControllerTest
         item.setItemName("Pizza");
         list.add(item);
         when(restaurantService.getRestaurantById(restaurantId)).thenReturn(list);
-        List<Items> responseEntity = restaurantService.getRestaurantById(restaurantId);
-        assertNotNull(responseEntity);
-    }
-
-    @Test
-    public void testGetRestaurantById_Failure() {
-        Integer restaurantId = 99;
-        when(restaurantService.getRestaurantById(restaurantId)).thenReturn(new ArrayList<>());
-        List<Items> responseEntity = restaurantService.getRestaurantById(restaurantId);
-        assertNotNull(responseEntity);
-
+        List<Items> list = restaurantService.getRestaurantById(restaurantId);
+        assertNotNull(list);
     }
 
     @Test
@@ -149,53 +105,32 @@ public class AdminControllerTest
         updatedRestaurant.setRestaurantName("Restaurant A");
         response.setMsg("Restaurant information updated successfully");
         when(restaurantService.updateRestaurantInfo(restaurantName, updatedRestaurant)).thenReturn(response);
-        ApiResponse response = restaurantService.updateRestaurantInfo(restaurantName, updatedRestaurant);
+        ResponseEntity<ApiResponse> response = adminController.updateRestaurantInfo(restaurantName, updatedRestaurant);
         assertNotNull(response);
-        assertEquals(true, response.getSuccess());
-        assertEquals("Restaurant information updated successfully", response.getMsg());
-    }
-
-    @Test
-    public void testUpdateRestaurantInfo_Failure() {
-        String restaurantName = "NonExistentRestaurant";
-        Restaurant updatedRestaurant = new Restaurant();
-        updatedRestaurant.setRestaurantName("Restaurant A");
-        try {
-            when(restaurantService.updateRestaurantInfo(restaurantName, updatedRestaurant))
-                    .thenThrow(new RuntimeException("Restaurant not found"));
-        } catch (RuntimeException e) {
-            assertEquals("Restaurant not found", e.getMessage());
-        }
+        assertEquals(true, response.getBody().getSuccess());
+        assertEquals("Restaurant information updated successfully", response.getBody().getMsg());
     }
 
     @Test
     public void testGetRestaurantByName_Success() {
         String restaurantName = "Restaurant A";
         when(restaurantService.getRestaurantByName(restaurantName)).thenReturn(restaurant);
-        Restaurant response = restaurantService.getRestaurantByName(restaurantName);
+        ResponseEntity<Restaurant> response = adminController.getRestaurantByName(restaurantName);
         assertNotNull(response);
-    }
-
-    @Test
-    public void testGetRestaurantByName_NotFound() {
-        String restaurantName = "NonExistentRestaurant";
-        when(restaurantService.getRestaurantByName(restaurantName)).thenReturn(null);
-        Restaurant response = restaurantService.getRestaurantByName(restaurantName);
-        assertNull(response);
     }
 
     @Test
     public void testGetAllRestaurant_Success() {
         List<Restaurant> restaurants = Arrays.asList(restaurant, restaurant1);
         when(restaurantService.getAllRestaurant()).thenReturn(restaurants);
-        List<Restaurant> response = restaurantService.getAllRestaurant();
+        ResponseEntity<List<Restaurant>> response = adminController.getAllRestaurant();
         assertNotNull(response);
     }
 
     @Test
     public void testGetAllRestaurant_EmptyList() {
         when(restaurantService.getAllRestaurant()).thenReturn(Arrays.asList());
-        List<Restaurant> response = restaurantService.getAllRestaurant();
+        ResponseEntity<List<Restaurant>> response = adminController.getAllRestaurant();
         assertNotNull(response);
     }
 
@@ -203,37 +138,16 @@ public class AdminControllerTest
     public void testAddRestaurant_Success() {
         response.setMsg("Restaurant added successfully");
         when(restaurantService.addRestaurant(restaurant)).thenReturn(response);
-        ApiResponse response = restaurantService.addRestaurant(restaurant);
+        ResponseEntity<ApiResponse> response = adminController.addRestaurant(restaurant);
         assertNotNull(response);
-    }
-
-
-    @Test
-    public void testAddRestaurant_Failure() {
-        try {
-            when(restaurantService.addRestaurant(restaurant)).thenThrow(new RuntimeException(" error"));
-        } catch (RuntimeException e) {
-            assertEquals(" error", e.getMessage());
-        }
     }
 
     @Test
     public void testPermanentDeleteCustomer_Success() {
         response.setMsg("Customer deleted successfully");
         when(customerService.permanentDeleteCustomer("test@example.com")).thenReturn(response);
-        ApiResponse response = customerService.permanentDeleteCustomer("test@example.com");
+        ResponseEntity<ApiResponse> response = adminController.permanentDeleteCustomer("test@example.com");
         assertNotNull(response);
-    }
-
-    @Test
-    public void testPermanentDeleteCustomer_Failure() {
-        try {
-            when(customerService.permanentDeleteCustomer("nonexistent@example.com"))
-                    .thenThrow(new RuntimeException("Customer not found"));
-
-        } catch (RuntimeException e) {
-            assertEquals("Customer not found", e.getMessage());
-        }
     }
 
     @Test
@@ -241,55 +155,24 @@ public class AdminControllerTest
         response.setMsg("Customer soft deleted successfully");
         when(customerService.softDeleteCustomer("ishika@example.com")).thenReturn(response);
 
-       ApiResponse response = customerService.softDeleteCustomer("ishika@example.com");
+        ResponseEntity<ApiResponse> response = adminController.softDeleteCustomer("ishika@example.com");
          assertNotNull(response);
-        assertTrue(response.getSuccess());
-    }
-
-    @Test
-    public void testSoftDeleteCustomer_Failure() {
-
-        try {
-            when(customerService.softDeleteCustomer("ishika@example.com"))
-                    .thenThrow(new RuntimeException("Customer not found"));
-        } catch (RuntimeException e) {
-            assertEquals("Customer not found", e.getMessage());
-        }
+        assertTrue(response.getBody().getSuccess());
     }
 
     @Test
     public void testAddCustomer_Success() {
         when(customerService.addCustomer(customer)).thenReturn(response);
-        ApiResponse response = customerService.addCustomer(customer);
+        ResponseEntity<ApiResponse> response = adminController.addCustomer(customer);
         assertNotNull(response);
-        assertTrue(response.getSuccess());
+        assertTrue(response.getBody().getSuccess());
         }
-
-
-    @Test
-    public void testAddCustomer_Failure() {
-        try {
-            when(customerService.addCustomer(customer))
-                    .thenThrow(new RuntimeException("Customer already exists"));
-
-        } catch (RuntimeException e) {
-            assertEquals("Customer already exists", e.getMessage());
-        }
-    }
 
     @Test
     public void testLoginAdmin_Success() {
         String expectedResponse = "mock-jwt-token";
         when(adminService.verifyForLogin(admin)).thenReturn(expectedResponse);
-        String response = adminService.verifyForLogin(admin);
-        assertNotNull(response);
-    }
-
-    @Test
-    public void testLoginAdmin_Failure() {
-        String expectedResponse = "Invalid credentials";
-        when(adminService.verifyForLogin(admin)).thenReturn(expectedResponse);
-        String response = adminService.verifyForLogin(admin);
+        ResponseEntity<String> response = adminController.loginAdmin(admin);
         assertNotNull(response);
     }
 }

@@ -65,8 +65,8 @@ public class FoodCartServiceImpl implements IFoodCartService {
     }
 
     @Override
-    public List<Items> getRestaurantByName(Integer customerId) {
-
-        return List.of();
+    public List<Items> getAllItems_FoodCart(Integer customerId) {
+        FoodCart cart = foodRepo.findByCustomerCustomerId(customerId).orElseThrow(() -> new ResourceNotFoundExceptions("No Customer Found By This ID"));
+        return cart.getItems();
     }
 }

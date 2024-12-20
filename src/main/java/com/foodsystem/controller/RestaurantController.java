@@ -54,9 +54,4 @@ public class RestaurantController {
         Items items = itemsService.getItemByName(itemName);
         return new ResponseEntity<Items>(items, HttpStatus.OK);
     }
-
-
-
-
-
 }
