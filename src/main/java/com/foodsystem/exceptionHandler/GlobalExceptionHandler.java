@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler
-    public ApiResponse resourceNotFoundExceptions(ResourceNotFoundExceptions e)
-    {
+    public ApiResponse resourceNotFoundExceptions(ResourceNotFoundExceptions e) {
         return new ApiResponse.Builder().msg(e.getMessage()).code(HttpStatus.NOT_FOUND).success(false).build();
     }
 }

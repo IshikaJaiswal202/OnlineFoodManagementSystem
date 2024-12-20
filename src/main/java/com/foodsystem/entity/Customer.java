@@ -14,7 +14,7 @@ public class Customer {
     private  Integer customerId;
     private String   customerName;
     @Column(unique = true)
-    private String   email;
+    private String  email;
     private String password;
     private String   phoneNumber;
     private String   address;

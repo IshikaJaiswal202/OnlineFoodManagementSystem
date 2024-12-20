@@ -13,5 +13,6 @@ public interface IFoodCartService {
 
     List<Items> saveItemsToFoodCart(Integer restaurantId, Integer itemId,Integer customerId);
 
-    List<Items> getRestaurantByName(Integer customerId);
+
+    List<Items> getAllItems_FoodCart(Integer customerId);
 }

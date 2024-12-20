@@ -1,7 +1,9 @@
 package com.foodsystem.service.impl;
 
 import com.foodsystem.builder.ApiResponse;
-import com.foodsystem.entity.*;
+import com.foodsystem.entity.Customer;
+import com.foodsystem.entity.FoodCart;
+import com.foodsystem.entity.Items;
 import com.foodsystem.exceptions.ResourceNotFoundExceptions;
 import com.foodsystem.repo.ICustomerRepo;
 import com.foodsystem.repo.IFoodCartRepo;
@@ -33,14 +35,13 @@ public class FoodCartServiceImpl implements IFoodCartService {
     @Override
     public ApiResponse addFoodCart(Integer customerId, FoodCart foodCart) {
         Customer customer = repo.findById(customerId).orElseThrow(() -> new ResourceNotFoundExceptions("No Customer Found By This ID"));
-        Optional<FoodCart> foodCarts = foodRepo.findById(customerId);//.orElseThrow(() -> new ResourceNotFoundExceptions("A Customer Has Only One FoodCart"));
+        Optional<FoodCart> foodCarts = foodRepo.findByCustomerCustomerId(customerId);//.orElseThrow(() -> new ResourceNotFoundExceptions("A Customer Has Only One FoodCart"));
         if(foodCarts.isPresent())
         {
             throw  new ResourceNotFoundExceptions("A Customer Has Only One FoodCart");
         }
         foodCart.setCustomer(customer);
         FoodCart save = foodRepo.save(foodCart);
-        System.out.println(save);
         return  new ApiResponse.Builder().
                 msg("Successfully FoodCart is Created").
                 code(HttpStatus.CREATED).
@@ -64,8 +65,8 @@ public class FoodCartServiceImpl implements IFoodCartService {
     }
 
     @Override
-    public List<Items> getRestaurantByName(Integer customerId) {
-
-        return List.of();
+    public List<Items> getAllItems_FoodCart(Integer customerId) {
+        FoodCart cart = foodRepo.findByCustomerCustomerId(customerId).orElseThrow(() -> new ResourceNotFoundExceptions("No Customer Found By This ID"));
+        return cart.getItems();
     }
 }

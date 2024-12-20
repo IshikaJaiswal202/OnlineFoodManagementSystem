@@ -53,9 +53,11 @@ public class ItemsServiceImpl implements IItemsService {
     public ApiResponse updateItems(String itemName, Items items)
     {
       Items item=  repo.findByItemName(itemName).orElseThrow(()-> new ResourceNotFoundExceptions("No Item Found BY This Name"));
-      if(items.getItemName()!=null)
+      if(items.getItemName()!=null&& !itemName.equals(items.getItemName()))
       {
-          repo.findByItemName(items.getItemName()).orElseThrow(()-> new ResourceNotFoundExceptions("No Item Found BY This Name"));
+          if (repo.findByItemName(items.getItemName()).isPresent()) {
+              throw new ResourceNotFoundExceptions("Item Name Should be Unique");
+          }
           item.setItemName(items.getItemName());
       }
       item.setItemCost(items.getItemCost()==null? item.getItemCost() : items.getItemCost());
